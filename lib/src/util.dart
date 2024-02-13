@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+
+import 'firebase_chat_core_user.dart';
 
 /// Extension with one [toShortString] method.
 extension RoleToShortString on types.Role {
@@ -37,7 +38,7 @@ Future<Map<String, dynamic>> fetchUser(
 /// Returns a list of [types.Room] created from Firebase query.
 /// If room has 2 participants, sets correct room name and image.
 Future<List<types.Room>> processRoomsQuery(
-  User firebaseUser,
+  FirebaseChatCoreUser firebaseUser,
   FirebaseFirestore instance,
   QuerySnapshot<Map<String, dynamic>> query,
   String usersCollectionName,
@@ -57,7 +58,7 @@ Future<List<types.Room>> processRoomsQuery(
 /// Returns a [types.Room] created from Firebase document.
 Future<types.Room> processRoomDocument(
   DocumentSnapshot<Map<String, dynamic>> doc,
-  User firebaseUser,
+  FirebaseChatCoreUser firebaseUser,
   FirebaseFirestore instance,
   String usersCollectionName,
 ) async {
