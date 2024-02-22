@@ -35,13 +35,13 @@ class FirebaseChatCore {
   ) async {
     Query queryRef = getFirebaseFirestore()
         .collection(config.usersCollectionName)
-        .where('name', isGreaterThanOrEqualTo: query)
+        .where('firstName', isGreaterThanOrEqualTo: query)
         .where(
-          'name',
+          'firstName',
           isLessThan: query.substring(0, query.length - 1) +
               String.fromCharCode(query.codeUnitAt(query.length - 1) + 1),
         )
-        .orderBy('name')
+        .orderBy('firstName')
         .limit(pageSize);
 
     if (lastDocument != null) {
