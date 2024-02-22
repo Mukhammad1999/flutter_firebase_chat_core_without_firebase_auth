@@ -28,7 +28,7 @@ class FirebaseChatCore {
     config = firebaseChatCoreConfig;
   }
 
-  Future<List<types.User>> searchUsersByName(
+  Future<List<QueryDocumentSnapshot>> searchUsersByName(
     String query,
     DocumentSnapshot? lastDocument,
     int pageSize,
@@ -50,9 +50,7 @@ class FirebaseChatCore {
 
     try {
       final querySnapshot = await queryRef.get();
-      return querySnapshot.docs
-          .map((doc) => types.User.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
+      return querySnapshot.docs;
     } catch (e) {
       print('Error searching users: $e');
       return [];
