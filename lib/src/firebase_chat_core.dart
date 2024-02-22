@@ -28,6 +28,27 @@ class FirebaseChatCore {
     config = firebaseChatCoreConfig;
   }
 
+  Future<List<types.User>> searchUsersByName(String query) async {
+    try {
+      final querySnapshot = await getFirebaseFirestore()
+          .collection(config.usersCollectionName)
+          .where('name', isGreaterThanOrEqualTo: query)
+          .where(
+            'name',
+            isLessThan: query.substring(0, query.length - 1) +
+                String.fromCharCode(query.codeUnitAt(query.length - 1) + 1),
+          )
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => types.User.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      print('Error searching users: $e');
+      return [];
+    }
+  }
+
   /// Creates a chat group room with [users]. Creator is automatically
   /// added to the group. [name] is required and will be used as
   /// a group name. Add an optional [imageUrl] that will be a group avatar
