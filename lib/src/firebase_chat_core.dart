@@ -209,17 +209,19 @@ class FirebaseChatCore {
   }
 
   Future<void> changeUserAvatar(String userAvatarUrl) async {
-    await getFirebaseFirestore()
-        .collection(config.usersCollectionName)
-        .doc(firebaseUser.uid)
-        .set(
-      {
-        'imageUrl': userAvatarUrl,
-      },
-      SetOptions(
-        merge: true,
-      ),
-    );
+    if (userAvatarUrl.isNotEmpty) {
+      await getFirebaseFirestore()
+          .collection(config.usersCollectionName)
+          .doc(firebaseUser.uid)
+          .set(
+        {
+          'imageUrl': userAvatarUrl,
+        },
+        SetOptions(
+          merge: true,
+        ),
+      );
+    }
   }
 
   /// Removes message document.
