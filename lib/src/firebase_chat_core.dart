@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -193,6 +195,7 @@ class FirebaseChatCore {
   /// Creates [types.User] in Firebase to store name and avatar used on
   /// rooms list.
   Future<void> createUserInFirestore(types.User user) async {
+    log("UserId: ${user.id}");
     await getFirebaseFirestore()
         .collection(config.usersCollectionName)
         .doc(user.id)
