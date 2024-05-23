@@ -64,6 +64,8 @@ Future<types.Room> processRoomDocument(
 ) async {
   final data = doc.data()!;
 
+  print(data['messages']);
+
   data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
   data['id'] = doc.id;
   data['updatedAt'] = data['updatedAt']?.millisecondsSinceEpoch;
@@ -105,7 +107,10 @@ Future<types.Room> processRoomDocument(
   data['users'] = users;
 
   if (data['messages'] != null) {
+    print("LAST MESSAGES : ${data['messages']}");
+
     final lastMessages = data['messages'].map((lm) {
+      print(lm);
       final author = users.firstWhere(
         (u) => u['id'] == lm['authorId'],
         orElse: () => {'id': lm['authorId'] as String},
