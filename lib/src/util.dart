@@ -64,7 +64,7 @@ Future<types.Room> processRoomDocument(
 ) async {
   final data = doc.data()!;
 
-  print(data['messages']);
+  print(data);
 
   data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
   data['id'] = doc.id;
