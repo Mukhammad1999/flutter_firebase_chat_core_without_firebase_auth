@@ -104,8 +104,8 @@ Future<types.Room> processRoomDocument(
   data['name'] = name;
   data['users'] = users;
 
-  if (data['lastMessages'] != null) {
-    final lastMessages = data['lastMessages'].map((lm) {
+  if (data['messages'] != null) {
+    final lastMessages = data['messages'].map((lm) {
       final author = users.firstWhere(
         (u) => u['id'] == lm['authorId'],
         orElse: () => {'id': lm['authorId'] as String},
