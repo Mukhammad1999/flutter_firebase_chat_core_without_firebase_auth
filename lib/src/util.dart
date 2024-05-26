@@ -64,8 +64,6 @@ Future<types.Room> processRoomDocument(
 ) async {
   final data = doc.data()!;
 
-  print(data.toString());
-
   data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
   data['id'] = doc.id;
   data['updatedAt'] = data['updatedAt']?.millisecondsSinceEpoch;
@@ -106,25 +104,33 @@ Future<types.Room> processRoomDocument(
   data['name'] = name;
   data['users'] = users;
 
-  if (data['messages'] != null) {
-    print("LAST MESSAGES : ${data['messages']}");
+  final messagesSnapshot = await instance
+      .collection('rooms')
+      .doc(doc.id)
+      .collection('messages')
+      .orderBy('createdAt', descending: true)
+      .limit(1)
+      .get();
 
-    final lastMessages = data['messages'].map((lm) {
-      print(lm);
-      final author = users.firstWhere(
-        (u) => u['id'] == lm['authorId'],
-        orElse: () => {'id': lm['authorId'] as String},
-      );
+  if (messagesSnapshot.docs.isNotEmpty) {
+    final lastMessageDoc = messagesSnapshot.docs.first;
+    final lastMessageData = lastMessageDoc.data();
 
-      lm['author'] = author;
-      lm['createdAt'] = lm['createdAt']?.millisecondsSinceEpoch;
-      lm['id'] = lm['id'] ?? '';
-      lm['updatedAt'] = lm['updatedAt']?.millisecondsSinceEpoch;
+    final author = users.firstWhere(
+      (u) => u['id'] == lastMessageData['authorId'],
+      orElse: () => {'id': lastMessageData['authorId'] as String},
+    );
 
-      return lm;
-    }).toList();
+    final lastMessage = {
+      'author': author,
+      'createdAt': lastMessageData['createdAt']?.millisecondsSinceEpoch,
+      'id': lastMessageDoc.id,
+      'text': lastMessageData['text'],
+      'type': lastMessageData['type'],
+      'updatedAt': lastMessageData['updatedAt']?.millisecondsSinceEpoch,
+    };
 
-    data['lastMessages'] = lastMessages;
+    data['lastMessage'] = lastMessage;
   }
 
   return types.Room.fromJson(data);
