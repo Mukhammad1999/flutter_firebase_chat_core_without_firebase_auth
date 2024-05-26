@@ -112,6 +112,8 @@ Future<types.Room> processRoomDocument(
       .limit(1)
       .get();
 
+  print(messagesSnapshot.docs.toString());
+
   if (messagesSnapshot.docs.isNotEmpty) {
     final lastMessageDoc = messagesSnapshot.docs.first;
     final lastMessageData = lastMessageDoc.data();
