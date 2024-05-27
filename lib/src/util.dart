@@ -135,8 +135,10 @@ Future<types.Room> processRoomDocument(
             DateTime.now().millisecondsSinceEpoch,
       };
 
-      data['lastMessage'] = lastMessage;
+      data['lastMessages'] = lastMessage;
     }
+
+    print("DATA : $data");
 
     final room = types.Room.fromJson(data);
 
