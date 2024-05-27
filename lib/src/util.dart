@@ -124,7 +124,18 @@ Future<types.Room> processRoomDocument(
 
       print(lastMessageData);
 
-      data['lastMessage'] = lastMessageData;
+      final lastMessage = {
+        'author': author,
+        'createdAt': lastMessageData['createdAt']?.millisecondsSinceEpoch ??
+            DateTime.now().millisecondsSinceEpoch,
+        'id': lastMessageDoc.id,
+        'text': lastMessageData['text'] ?? '',
+        'type': lastMessageData['type'] ?? 'text',
+        'updatedAt': lastMessageData['updatedAt']?.millisecondsSinceEpoch ??
+            DateTime.now().millisecondsSinceEpoch,
+      };
+
+      data['lastMessage'] = lastMessage;
     }
 
     final room = types.Room.fromJson(data);
