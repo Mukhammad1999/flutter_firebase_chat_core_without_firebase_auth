@@ -130,10 +130,14 @@ Future<types.Room> processRoomDocument(
       'updatedAt': lastMessageData['updatedAt']?.millisecondsSinceEpoch,
     };
 
-    print(lastMessage);
-
     data['lastMessage'] = lastMessage;
+
+    print(data['lastMessage']);
   }
 
-  return types.Room.fromJson(data);
+  final room = types.Room.fromJson(data);
+
+  print('ROOM : $room');
+
+  return room;
 }
