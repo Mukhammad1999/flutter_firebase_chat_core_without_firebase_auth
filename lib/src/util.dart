@@ -135,7 +135,7 @@ Future<types.Room> processRoomDocument(
             DateTime.now().millisecondsSinceEpoch,
       };
 
-      data['lastMessages'] = lastMessage;
+      data['lastMessages'] = [lastMessage];
     }
 
     print("DATA : $data");
