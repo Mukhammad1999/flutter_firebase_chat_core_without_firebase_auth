@@ -62,82 +62,88 @@ Future<types.Room> processRoomDocument(
   FirebaseFirestore instance,
   String usersCollectionName,
 ) async {
-  final data = doc.data()!;
+  try {
+    final data = doc.data()!;
 
-  data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
-  data['id'] = doc.id;
-  data['updatedAt'] = data['updatedAt']?.millisecondsSinceEpoch;
+    data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
+    data['id'] = doc.id;
+    data['updatedAt'] = data['updatedAt']?.millisecondsSinceEpoch;
 
-  var imageUrl = data['imageUrl'] as String?;
-  var name = data['name'] as String?;
-  final type = data['type'] as String;
-  final userIds = data['userIds'] as List<dynamic>;
-  final userRoles = data['userRoles'] as Map<String, dynamic>?;
+    var imageUrl = data['imageUrl'] as String?;
+    var name = data['name'] as String?;
+    final type = data['type'] as String;
+    final userIds = data['userIds'] as List<dynamic>;
+    final userRoles = data['userRoles'] as Map<String, dynamic>?;
 
-  final users = await Future.wait(
-    userIds.map(
-      (userId) => fetchUser(
-        instance,
-        userId as String,
-        usersCollectionName,
-        role: userRoles?[userId] as String?,
+    final users = await Future.wait(
+      userIds.map(
+        (userId) => fetchUser(
+          instance,
+          userId as String,
+          usersCollectionName,
+          role: userRoles?[userId] as String?,
+        ),
       ),
-    ),
-  );
-
-  if (type == types.RoomType.direct.toShortString()) {
-    try {
-      final otherUser = users.firstWhere(
-        (u) => u['id'] != firebaseUser.uid,
-      );
-
-      imageUrl = otherUser['imageUrl'] as String?;
-      name = '${otherUser['firstName'] ?? ''} ${otherUser['lastName'] ?? ''}'
-          .trim();
-    } catch (e) {
-      // Do nothing if other user is not found, because he should be found.
-      // Consider falling back to some default values.
-    }
-  }
-
-  data['imageUrl'] = imageUrl;
-  data['name'] = name;
-  data['users'] = users;
-
-  final messagesSnapshot = await instance
-      .collection('rooms')
-      .doc(doc.id)
-      .collection('messages')
-      .orderBy('createdAt', descending: true)
-      .limit(1)
-      .get();
-
-  if (messagesSnapshot.docs.isNotEmpty) {
-    final lastMessageDoc = messagesSnapshot.docs.first;
-    final lastMessageData = lastMessageDoc.data();
-
-    final author = users.firstWhere(
-      (u) => u['id'] == lastMessageData['authorId'],
-      orElse: () => {'id': lastMessageData['authorId'] as String},
     );
 
-    final lastMessage = {
-      'author': author,
-      'createdAt': lastMessageData['createdAt']?.millisecondsSinceEpoch,
-      'id': lastMessageDoc.id,
-      'text': lastMessageData['text'],
-      'type': lastMessageData['type'],
-      'updatedAt': lastMessageData['updatedAt']?.millisecondsSinceEpoch,
-    };
+    if (type == types.RoomType.direct.toShortString()) {
+      try {
+        final otherUser = users.firstWhere(
+          (u) => u['id'] != firebaseUser.uid,
+        );
 
-    data['lastMessage'] = lastMessage;
+        imageUrl = otherUser['imageUrl'] as String?;
+        name = '${otherUser['firstName'] ?? ''} ${otherUser['lastName'] ?? ''}'
+            .trim();
+      } catch (e) {
+        // Do nothing if other user is not found, because he should be found.
+        // Consider falling back to some default values.
+      }
+    }
 
-    print(data['lastMessage']);
+    data['imageUrl'] = imageUrl;
+    data['name'] = name;
+    data['users'] = users;
+
+    final messagesSnapshot = await instance
+        .collection('rooms')
+        .doc(doc.id)
+        .collection('messages')
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get();
+
+    if (messagesSnapshot.docs.isNotEmpty) {
+      final lastMessageDoc = messagesSnapshot.docs.first;
+      final lastMessageData = lastMessageDoc.data();
+
+      final author = users.firstWhere(
+        (u) => u['id'] == lastMessageData['authorId'],
+        orElse: () => {'id': lastMessageData['authorId'] as String},
+      );
+
+      final lastMessage = {
+        'author': author,
+        'createdAt': lastMessageData['createdAt']?.millisecondsSinceEpoch,
+        'id': lastMessageDoc.id,
+        'text': lastMessageData['text'],
+        'type': lastMessageData['type'],
+        'updatedAt': lastMessageData['updatedAt']?.millisecondsSinceEpoch,
+      };
+
+      data['lastMessage'] = lastMessage;
+
+      print(data['lastMessage']);
+    }
+
+    final room = types.Room.fromJson(data);
+
+    print('ROOM : $room');
+
+    return room;
+  } catch (e, s) {
+    print('Error : $e');
+    print('StackTrace: $s');
+    throw Error();
   }
-
-  final room = types.Room.fromJson(data);
-
-  print('ROOM : $room');
-
-  return room;
 }
